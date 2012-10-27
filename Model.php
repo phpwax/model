@@ -48,10 +48,10 @@ class Model{
    *                          or constraints (if array) but param['pdo'] is PDO instance
    */
  	function __construct($params=null) {
- 	  $this->load_backend(self::$db_settings);
+ 	  //$this->load_backend(self::$db_settings);
     $class_name =  get_class($this);
  		if( $class_name != 'Model' && !$this->table ) {
- 			$this->table = Inflections::underscore( $class_name );
+      $this->table = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class_name));
  		}
     $this->_query = new \ArrayObject($this->_query_params);
     $this->load_fieldset();
@@ -98,24 +98,17 @@ class Model{
   
   public function load_fieldset() {
     if(!$this->_fieldset) {
-      $this->_fieldset = new ObjectProxy(new Fieldset($this));
+      $this->_fieldset =  new Fieldset($this);
     }
   }
 
  	public function define($column, $type, $options=array()) {
-    $this->fieldset("add", $column, $type, $options);
+    $this->_fieldset->add($column,$type, $options);
  	}
   
-  public function fieldset() {
-    if(count(func_get_args())) {
-      $set = $this->_fieldset->get();
-      $args = func_get_args();
-      return call_user_func_array([$set, array_shift($args)], $args);
-    }
-  }
   
   public function columns() {
-    return $this->fieldset("columns");
+    return $this->_fieldset->columns();
   }
   
   public function writable_columns() {
@@ -216,15 +209,8 @@ class Model{
   public function set_identifier() {
     // Grab the first text field to display
     if($this->_identifier) return true;
-    foreach($this->fieldset("columns") as $name=>$col) {
-      if($col->data_type=="string") {
-        $label_field = $name;
-      }
-      if($label_field) {
-        $this->_identifier = $label_field;
-        return true;
-      }
-    }
+    else return $this->_fieldset->identifier();
+    
   }
 
 
@@ -478,7 +464,7 @@ class Model{
     *  @return mixed           property value
     */
   public function __get($name) {
-    if(in_array($name, $this->fieldset("keys"))|| in_array($name, $this->fieldset("associations"))) {
+    if(in_array($name, $this->_fieldset->keys)|| in_array($name, $this->_fieldset->associations())) {
       $this->notify_observers("before_get", $this, $name);
       $val = $this->row[$name];
       $this->notify_observers("after_get", $this, $name);
@@ -495,7 +481,7 @@ class Model{
    *  @param  mixed   value   property value
    */
   public function __set( $name, $value ) {
-    if(in_array($name, $this->fieldset("keys"))|| in_array($name, $this->fieldset("associations"))) {
+    if(in_array($name, $this->_fieldset->keys())|| in_array($name, $this->_fieldset->associations())) {
       $this->notify_observers("before_set", $this, $name);
       $this->row[$name]=$value;
       $this->notify_observers("after_set", $this, $name);

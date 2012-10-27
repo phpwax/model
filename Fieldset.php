@@ -16,15 +16,14 @@ class Fieldset  {
   public $parent_model   = FALSE;
   
   public function __construct($parent_model) {
-    $this->parent_model = new ObjectProxy($parent_model);
+    $this->parent_model = $parent_model;
   }
   
   
   public function add($column, $type, $options=[]) {
-    if(!$options["target_model"]) $this->set_key($column);
-    elseif($options["target_model"]) $this->set_association($column);
+    (isset($options["target_model"])) ? $this->set_association($column) : $this->set_key($column);    
     if(!class_exists($type)) $class = "Wax\\Model\\Fields\\".$type;
-    $this->columns[$column] = new ObjectProxy(new $class($column, $options));
+    $this->columns[$column] = new $class($column, $options);
     $this->parent_model->observe($this->columns[$column]);
   }
   
@@ -46,6 +45,17 @@ class Fieldset  {
   
   public function associations() {
     return $this->associations;
+  }
+  
+  /**
+   * Which field to use as a human identifiable label
+   *
+   * @return string
+   **/
+  public function identifier() {
+    foreach($this->columns() as $name=>$col) {
+      if($col->data_type=="string") return $name;
+    }
   }
   
   

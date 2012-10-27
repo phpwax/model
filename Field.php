@@ -74,7 +74,7 @@ class Field {
         else $this->choices[$key]=$choice;
       }
     }
-    if($choices instanceof Recordset) {
+    if(isset($choices) && $choices instanceof Recordset) {
       foreach($choices as $choice) {
         $this->choices[$choice->primval()]=$choice->{$choice->identifier};
       }
