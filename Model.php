@@ -485,7 +485,7 @@ class Model{
       $this->notify_observers("before_set", $this, $name);
       $this->row[$name]=$value;
       $this->notify_observers("after_set", $this, $name);
-    } else throw new SchemaException("You tried to write to a property that is not defined.","Model Assignment Error", $this, $name);
+    } else throw new SchemaException($this, $name);
   }
 
   /**

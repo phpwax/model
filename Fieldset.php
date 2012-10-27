@@ -35,6 +35,14 @@ class Fieldset  {
     return $this->keys;
   }
   
+  public function accessible_keys() {
+    $keys = [];
+    foreach($this->columns() as $key=>$field) {
+      if($field->editable) $keys[]=$key;
+    }
+    return $keys;
+  }
+  
   public function set_key($key) {
     if(!in_array($key,$this->keys)) $this->keys[] = $key;
   }

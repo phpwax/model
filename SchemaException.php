@@ -1,20 +1,20 @@
 <?php
 namespace Wax\Model;
-use Wax\Core\Exception;
 /**
  *
  * @package PHP-Wax
  * @author Ross Riley
  **/
-class SchemaException extends Exception {
+class SchemaException extends \Exception {
   
-  public $help = "<p>You tried to write to a model in a way the defined schema does not support:</p>";
+  public $message = "<p>You tried to write to a model in a way the defined schema does not support:</p>";
   
-	function __construct( $message, $code, $model,$write_name) {
-    $this->help .= "<pre>Writing to:".$write_name."<br>The Following are available:</pre>";
-	  $this->help .= "<pre>".print_r($model->schema("keys"), 1)."</pre>";
-	  $this->help .= "<p>Check out the definitions in the ".get_class($model)." class setup and try again.</p>";
-  	parent::__construct( $message, $code);
+	function __construct($model,$write_name, $previous = NULL) {
+    $message = $this->message;
+    $message .= "<pre>Writing to:".$write_name."<br>The Following are available:</pre>";
+	  $message .= "<pre>".print_r($model->_fieldset->keys(), 1)."</pre>";
+	  $message .= "<p>Check out the definitions in the ".get_class($model)." class setup and try again.</p>";
+  	parent::__construct( $message);
   }
 }
 
