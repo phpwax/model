@@ -1,12 +1,11 @@
 <?php
 namespace Wax\Model\Tests;
-use Wax\Model\Tests\ExampleModel;
 
 
 class ModelTest extends \PHPUnit_Framework_TestCase {
 
   public function setup() {
-    
+    $this->example_user = ["username"=>"test1", "password"=>"password", "email"=>"test1@test.com"];
   }
   
   public function teardown() {
@@ -16,7 +15,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
 
   public function test_create() {
     $model = new Example;
-    $model->set_attributes(["username"=>"test1", "password"=>"password", "email"=>"test1@test.com"]);
+    $model->set_attributes($this->example_user);
     $this->assertInstanceOf('Wax\Model\Tests\Example',$model);
     $this->assertEquals($model->username, "test1");
     $this->assertEquals($model->password, "password");
@@ -31,9 +30,10 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
   
   public function test_schema() {
     $model = new Example;
-    $model->set_attributes(["username"=>"test1", "password"=>"password", "email"=>"test1@test.com"]);
+    $model->set_attributes($this->example_user);
     $keys = $model->_fieldset->accessible_keys();
-    $this->assertEquals(count($keys), 3);    
+    $this->assertEquals(count($keys), 3);
+        
   }
   
   public function test_observe_set() {
@@ -47,11 +47,23 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals($observer->events["after_set"]->username,'test');
   }
   
+	
+  public function test_backend(){
+    $model = new Example;
+    $backend = new MockBackend;
+    $model->set_backend($backend);
+    $this->assertInstanceOf('Wax\Model\Tests\MockBackend',$model->_backend);    
+  }
   
-
-		
-  public function test_equal(){
-
+  public function test_save() {
+    $model = new Example;
+    $backend = new MockBackend;
+    $model->set_backend($backend);
+    $model->set_attributes($this->example_user);
+    $result = $model->save();
+    $this->assertEquals($result->username, "test1");
+    $this->assertEquals($result->password, "password");
+    $this->assertEquals($result->email, "test1@test.com");
   }
 
 }

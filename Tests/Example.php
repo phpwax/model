@@ -4,9 +4,13 @@ use Wax\Model\Model;
 
 
 class Example extends Model {
-  public function setup() {
-    $this->define("username", "CharField", array("maxlength"=>40));
-    $this->define("password", "PasswordField", array("blank"=>false, "maxlength"=>15));
-    $this->define("email", "EmailField", array("blank"=>false));
-  }
+  
+  public $columns = [
+    'username'  =>['CharField',     ['maxlenth'=>40]],
+    'password'  =>['PasswordField', ['blank'=>false,'maxlenth'=>15]],
+    'email'     =>['EmailField',    ['blank'=>false]]
+  ];
+
+  
+
 }

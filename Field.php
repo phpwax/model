@@ -37,7 +37,6 @@ class Field {
     foreach($options as $option=>$val) $this->$option = $val;
     if(!$this->field) $this->field = $column;
     $this->setup();
-    $this->map_choices();
   }
   
   public function setup() {
@@ -64,23 +63,5 @@ class Field {
   public function after_get($object, $field) {}
   
 
-  
-  public function map_choices() {
-    if($this->text_choices && is_array($this->choices)) {
-      $choices = $this->choices;
-      $this->choices = array();
-      foreach($choices as $key=>$choice) {
-        if(is_numeric($key)) $this->choices[$choice]=$choice;
-        else $this->choices[$key]=$choice;
-      }
-    }
-    if(isset($choices) && $choices instanceof Recordset) {
-      foreach($choices as $choice) {
-        $this->choices[$choice->primval()]=$choice->{$choice->identifier};
-      }
-    }
-  }
- 	
-  
 
 }

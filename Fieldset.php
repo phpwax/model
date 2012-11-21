@@ -1,7 +1,5 @@
 <?php
 namespace Wax\Model;
-use Wax\Core\Exception;
-use Wax\Core\ObjectProxy;
 
 /**
  * Takes care of mapping model values to fields.
@@ -13,7 +11,8 @@ class Fieldset  {
   public $keys           = [];    
   public $associations   = [];    
   public $columns        = [];
-  public $parent_model   = FALSE;
+  public $parent_model   = false;
+  public $unique_key     = false;
   
   public function __construct($parent_model) {
     $this->parent_model = $parent_model;
