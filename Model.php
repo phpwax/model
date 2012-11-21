@@ -15,7 +15,7 @@ use Wax\Db\DbException;
  *
  * Allows models to be mapped to application objects
  **/
-class Model implements SplSubject{
+class Model implements \SplSubject{
 
   static public $db_settings  = false;
   static public $db           = false;
@@ -51,7 +51,7 @@ class Model implements SplSubject{
    */
  	function __construct($params=null) {
     if(isset($params["backend"])) $this->set_backend($params["backend"]);
-    $this->_observers = new SplObjectStorage();
+    $this->_observers = new \SplObjectStorage();
     
     $this->set_write_key();
  		$this->setup();
