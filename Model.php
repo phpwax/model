@@ -73,7 +73,7 @@ class Model implements SplSubject{
 	  }
  	}
   
-  public set_write_key() {
+  public function set_write_key() {
     $class_name =  get_class($this);
  		if( $class_name != 'Model' && !$this->_table ) {
       $this->_table = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class_name));
