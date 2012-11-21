@@ -1,10 +1,6 @@
 <?php
 namespace Wax\Model;
-use Wax\Core\Event;
-use Wax\Core\ObjectProxy;
 use Wax\Model\Fields;
-use Wax\Template\Helper\Inflections;
-use Wax\Db\DbException;
 
 
 /**
@@ -54,9 +50,9 @@ class Model implements \SplSubject{
     $this->_observers = new \SplObjectStorage();
     
     $this->set_write_key();
- 		$this->setup();
     $this->load_fieldset();
  		$this->set_identifier();
+ 		$this->setup();
     
     
  		// Handles initialisers passed into the constructor run a method called scope_[scope]() or if an `id` then load that model.
