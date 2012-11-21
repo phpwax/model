@@ -22,6 +22,8 @@ class Fieldset  {
   public function add($column, $type, $options=[]) {
     (isset($options["target_model"])) ? $this->set_association($column) : $this->set_key($column);    
     if(!class_exists($type)) $class = "Wax\\Model\\Fields\\".$type;
+    else $class = $type;
+    
     $this->columns[$column] = new $class($column, $options);
     $this->parent_model->observe($this->columns[$column]);
   }
