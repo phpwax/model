@@ -52,9 +52,7 @@ class Model implements \SplSubject{
     
     $this->set_write_key();
     $this->load_fieldset();
- 		$this->set_identifier();
  		$this->setup();
-    
     
  		// Handles initialisers passed into the constructor run a method called scope_[scope]() or if an `id` then load that model.
  		if($params) {
@@ -80,6 +78,15 @@ class Model implements \SplSubject{
   
   public function set_backend($backend) {
     $this->_backend = $backend;
+  }
+  
+  public static function default_backend($backend) {
+    self::$_default_backend = $backend;
+  }
+  
+  public function backend() {
+    if($this->_backend) return $this->_backend;
+    if(self::$_default_backend) return self::$_default_backend;
   }
   
   public function attach(\SplObserver $observer) {
@@ -120,8 +127,13 @@ class Model implements \SplSubject{
   public function writable_columns() {
     return array_intersect_key($this->row, array_fill_keys($this->_fieldset->keys(),1 ));
   }
+  
+  
 
-
+  /**
+   *  Empty in base, allows initialisation of extra fields
+   */
+   public function setup() {}
 
 
 	/************** Methods that hit the database ****************/
@@ -131,19 +143,19 @@ class Model implements \SplSubject{
    */
   public function save() {
     $this->notify("before_save");
-  	$this->_response = $this->_backend->save($this->row, $this->_fieldset);
+  	$this->_response = $this->backend()->save($this->row, $this->_fieldset);
     $this->notify("after_save");
   	return $this->_response;
   }
 
   public function query($query) {
-    return self::$_backend->query($query);
+    return $this->backend()->query($query);
   }
 
   
 
  	public function all() {
-    $fetch = self::$_backend->exec();
+    $fetch = $this->backend()->exec();
     foreach($fetch as $row) {
       $model = clone $this;
       $model->row = $row;
@@ -153,13 +165,13 @@ class Model implements \SplSubject{
  	}
 
  	public function rows() {
- 	  return self::$_backend->select($this);
+ 	  return $this->backend()->select($this);
  	}
 
  	public function first() {
  	  $this->_query->limit(1);
  	  $model = clone $this;
- 	  $res = self::$_backend->exec();
+ 	  $res = $this->backend()->exec();
  	  if($res[0]) $model->row = $res[0];
  	  else $model = false;
  	  return $model;
@@ -195,7 +207,9 @@ class Model implements \SplSubject{
    * @return mixed
    **/
   public function __call($method, $args) {
-    if($this->_backend) return call_user_func_array(array($this->_backend, $method), $args);
+    $backend = $this->backend();
+    if(is_callable(array($this->backend(), $method))); 
+    return call_user_func_array(array($this->backend(), $method), $args);
   }
   
 

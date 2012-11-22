@@ -32,7 +32,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $model = new Example;
     $model->set_attributes($this->example_user);
     $keys = $model->_fieldset->accessible_keys();
-    $this->assertEquals(count($keys), 3);
+    $this->assertEquals(count($keys), 5);
         
   }
   
@@ -52,8 +52,17 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $model = new Example;
     $backend = new MockBackend;
     $model->set_backend($backend);
-    $this->assertInstanceOf('Wax\Model\Tests\MockBackend',$model->_backend);    
+    $this->assertInstanceOf('Wax\Model\Tests\MockBackend',$model->backend());    
   }
+  
+  public function test_default_backend() {
+    $backend = new MockBackend;
+    Example::default_backend($backend);
+    $model = new Example;
+    $this->assertInstanceOf('Wax\Model\Tests\MockBackend',$model->backend());    
+    
+  }
+  
   
   public function test_save() {
     $model = new Example;
@@ -65,5 +74,6 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals($result->password, "password");
     $this->assertEquals($result->email, "test1@test.com");
   }
+  
 
 }
