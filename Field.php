@@ -43,14 +43,14 @@ class Field implements \SplObserver {
     if(!$this->col_name) $this->col_name = $this->field;
   }
   
-  public function update($object, $field=FALSE) {
+  public function update(\SplSubject $object) {
     if($object->_status == "before_save")   $this->before_save($object);
     if($object->_status == "after_save")    $this->after_save($object);
     
-    if($object->_status == "before_set" && $object->_event_data == $this->field)    $this->before_set($object, $field);
-    if($object->_status == "after_set"  && $object->_event_data == $this->field)    $this->after_set($object, $field);
-    if($object->_status == "before_get" && $object->_event_data == $this->field)    $this->before_get($object, $field);
-    if($object->_status == "after_get"  && $object->_event_data == $this->field)    $this->after_get($object, $field);    
+    if($object->_status == "before_set" && $object->_event_data == $this->field)    $this->before_set($object, $object->_event_data);
+    if($object->_status == "after_set"  && $object->_event_data == $this->field)    $this->after_set($object, $object->_event_data);
+    if($object->_status == "before_get" && $object->_event_data == $this->field)    $this->before_get($object, $object->_event_data);
+    if($object->_status == "after_get"  && $object->_event_data == $this->field)    $this->after_get($object, $object->_event_data);    
   }
   
   public function before_save($object) {}

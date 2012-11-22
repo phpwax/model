@@ -2,12 +2,12 @@
 namespace Wax\Model\Tests;
 
 
-class MockObserver  {
+class MockObserver implements \SplObserver  {
   
   public $events = [];
   
-  public function notify($label, $object) {
-    $this->events[$label]=$object;
+  public function update(\SplSubject $object) {
+    $this->events[$object->_status]=$object;
   }
   
 }

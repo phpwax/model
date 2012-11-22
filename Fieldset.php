@@ -25,7 +25,7 @@ class Fieldset  {
     else $class = $type;
     
     $this->columns[$column] = new $class($column, $options);
-    $this->parent_model->observe($this->columns[$column]);
+    $this->parent_model->attach($this->columns[$column]);
   }
   
   public function columns() {

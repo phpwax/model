@@ -39,7 +39,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
   public function test_observe_set() {
     $model = new Example;
     $observer = new MockObserver;
-    $model->observe($observer);
+    $model->attach($observer);
     $model->username = "test";
     $this->assertInstanceOf('Wax\Model\Tests\Example',$observer->events["before_set"]);
     $this->assertInstanceOf('Wax\Model\Tests\Example',$observer->events["after_set"]);

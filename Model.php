@@ -82,22 +82,19 @@ class Model implements \SplSubject{
     $this->_backend = $backend;
   }
   
-  public function attach(SplObserver $observer) {
+  public function attach(\SplObserver $observer) {
     $this->_observers->attach($observer);
   }
 
-  public function detach(SplObserver $observer) {
+  public function detach(\SplObserver $observer) {
     $this->_observers->detach($observer);
   }
   
-  public function observe($proxy) {
-    if(!in_array($proxy, $this->_observers)) $this->_observers[] = $proxy;
-  }
   
   public function notify($status = false, $data = false) {
     if($status) $this->_status = $status; 
     if($data)   $this->_event_data = $data; 
-    foreach ($this->_observers as $observer) $observer->update($this, $params);
+    foreach ($this->_observers as $observer) $observer->update($this);
   }
   
   
