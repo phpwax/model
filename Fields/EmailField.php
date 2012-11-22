@@ -8,7 +8,7 @@ use Wax\Model\Field;
  *
  * @package PHP-Wax
  **/
-class EmailField extends CharField {
+class EmailField extends Field {
   
   public $maxlength = "100";
   public $data_type = "string";

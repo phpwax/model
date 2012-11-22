@@ -15,7 +15,6 @@ class CharField extends Field {
   );
   public $data_type = "string";
   
-  public function setup() {}
 
 
 }

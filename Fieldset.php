@@ -24,7 +24,8 @@ class Fieldset  {
     if(!class_exists($type)) $class = "Wax\\Model\\Fields\\".$type;
     else $class = $type;
     
-    $this->columns[$column] = new $class($column, $options);
+    if(class_exists($class)) $this->columns[$column] = new $class($column, $options);
+    else die($type);
     $this->parent_model->attach($this->columns[$column]);
   }
   

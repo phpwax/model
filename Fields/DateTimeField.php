@@ -1,5 +1,7 @@
 <?php
-namespace Wax\Db;
+namespace Wax\Model\Fields;
+use Wax\Model\Field;
+
 
 /**
  * EmailField class
@@ -17,24 +19,8 @@ class DateTimeField extends Field {
   public $use_uk_date = false;
   public $data_type = "date_and_time";
   
-  public function setup() {
-    if($this->model->row[$this->field]==0 && is_string($this->default)) {
-      $this->model->row[$this->field] = date($this->save_format,strtotime($this->default));
-    }
-    if($this->required) $this->validations["datetime"];
-  }
   
-  public function output() {
-    return date($this->output_format, strtotime($this->get()));
-  }
-  
-  public function validate() {
-    if($value = $this->get()) $this->model->row[$this->field]= date($this->save_format, strtotime($value));    
-  }
-  
-  public function uk_date_switch() {
-    
-  }
+
   
 
 } 
