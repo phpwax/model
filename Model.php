@@ -33,6 +33,7 @@ class Model implements \SplSubject{
   
   public $_observers          = false; // SplStorage stack that manages attached observers
   public $_status             = false; // Internal status that allows observers to read
+  public $_event_data         = false; // 
   
   public $_response           = false; // Stores object response, prior to returning
   
@@ -93,9 +94,10 @@ class Model implements \SplSubject{
     if(!in_array($proxy, $this->_observers)) $this->_observers[] = $proxy;
   }
   
-  public function notify($status = false) {
+  public function notify($status = false, $data = false) {
     if($status) $this->_status = $status; 
-    foreach ($this->_observers as $observer) $observer->update($this);
+    if($data)   $this->_event_data = $data; 
+    foreach ($this->_observers as $observer) $observer->update($this, $params);
   }
   
   
@@ -131,13 +133,10 @@ class Model implements \SplSubject{
    *  Insert record to table, or update record data
    */
   public function save() {
-    $this->notify_observers("before_save",$this->row, $this->_fieldset);
-  	if($this->_persistent) {  
-  	  $res = $this->_backend->save($this->row, $this->_fieldset);
-      $this->notify_observers("after_save",$this->row, $this->_fieldset);
-  		return $res;
-    }
-    return $this;
+    $this->notify("before_save");
+  	$this->_response = $this->_backend->save($this->row, $this->_fieldset);
+    $this->notify("after_save");
+  	return $this->_response;
   }
 
   public function query($query) {
@@ -186,48 +185,6 @@ class Model implements \SplSubject{
 	}
 
   
-  
-  /********** Static Finder Methods ********/
-  
-  static public function find($finder, $params = array(), $scope_params = array()) {
-    $class = get_called_class();
-    if(is_numeric($finder)) return new $class($finder);
-    if(is_array($params)) {
-      $mod = new $class;
-      foreach($params as $method=>$args) {
-        $mod->$method($args);
-      }
-    } elseif(is_string($params)) {
-      $mod = new $class($params);
-      foreach($scope_params as $method=>$args) {
-        $mod->$method($args);
-      }
-    }
-    switch($finder) {
-      case 'all':
-        return $mod->all();
-        break;
-      case 'first':
-        return $mod->first();
-        break;
-    }
-  }
-  
-  static public function where($filters=[]) {
-    $class = get_called_class();
-    $mod = new $class;
-    $mod->filter($filters);
-    return $mod->all();
-  }
-  
-  static public function create($attributes = []) {
- 		$class = get_called_class();
-    $new = new $class;
- 		return $new->update_attributes($attributes);
-  }
-  
-  
-
 
 
   /********** Magic Methods **************/
@@ -256,9 +213,9 @@ class Model implements \SplSubject{
     */
   public function __get($name) {
     if(in_array($name, $this->_fieldset->keys)|| in_array($name, $this->_fieldset->associations())) {
-      $this->notify_observers("before_get", $this, $name);
+      $this->notify("before_get", $name);
       $val = $this->row[$name];
-      $this->notify_observers("after_get", $this, $name);
+      $this->notify("after_get", $name);
       return $val;
     }
     elseif(method_exists($this, $name)) return $this->{$name}();
@@ -273,9 +230,9 @@ class Model implements \SplSubject{
    */
   public function __set( $name, $value ) {
     if(in_array($name, $this->_fieldset->keys())|| in_array($name, $this->_fieldset->associations())) {
-      $this->notify_observers("before_set", $this, $name);
+      $this->notify("before_set", $name);
       $this->row[$name]=$value;
-      $this->notify_observers("after_set", $this, $name);
+      $this->notify("after_set", $name);
     } else throw new SchemaException($this, $name);
   }
 

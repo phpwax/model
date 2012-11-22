@@ -7,7 +7,7 @@ namespace Wax\Model;
  *
  * @package PHP-Wax
  **/
-class Field {
+class Field implements \SplObserver {
     
   // Database Specific Configuration
   public $field       = FALSE;          // How this column is referred to
@@ -43,14 +43,14 @@ class Field {
     if(!$this->col_name) $this->col_name = $this->field;
   }
   
-  public function notify($event, $object, $field=FALSE) {
-    if($event == "before_save")   $this->before_save($object);
-    if($event == "after_save")    $this->after_save($object);
+  public function update($object, $field=FALSE) {
+    if($object->_status == "before_save")   $this->before_save($object);
+    if($object->_status == "after_save")    $this->after_save($object);
     
-    if($event == "before_set" && $field==$this->field)    $this->before_set($object, $field);
-    if($event == "after_set"  && $field==$this->field)    $this->after_set($object, $field);
-    if($event == "before_get" && $field==$this->field)    $this->before_get($object, $field);
-    if($event == "after_get"  && $field==$this->field)    $this->after_get($object, $field);    
+    if($object->_status == "before_set" && $object->_event_data == $this->field)    $this->before_set($object, $field);
+    if($object->_status == "after_set"  && $object->_event_data == $this->field)    $this->after_set($object, $field);
+    if($object->_status == "before_get" && $object->_event_data == $this->field)    $this->before_get($object, $field);
+    if($object->_status == "after_get"  && $object->_event_data == $this->field)    $this->after_get($object, $field);    
   }
   
   public function before_save($object) {}
