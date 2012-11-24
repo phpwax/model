@@ -10,27 +10,28 @@ namespace Wax\Model;
 class Field implements \SplObserver {
     
   // Database Specific Configuration
-  public $field       = FALSE;          // How this column is referred to
-  public $null        = TRUE;           // Can column be null
-  public $default     = FALSE;       //default value for the column  
-  public $primary_key = FALSE;  // the primay key field name - der'h
-  public $table       = FALSE;          // Table name in the storage engine
-  public $col_name    = FALSE;               // Actual name in the storage engine
+  public $field       = false;          // How this column is referred to
+  public $null        = true;           // Can column be null
+  public $default     = false;       //default value for the column  
+  public $primary_key = false;  // the primay key field name - der'h
+  public $table       = false;          // Table name in the storage engine
+  public $col_name    = false;               // Actual name in the storage engine
   
   //Validation & Format Options
-  public $maxlength     = FALSE; 
-  public $minlength     = FALSE;
-  public $choices       = FALSE; //for select fields this is an array
-  public $text_choices  = FALSE; // Store choices as text in database
-  public $editable      = TRUE; // Only editable options will be displayed in forms
-  public $blank         = TRUE; 
-  public $required      = FALSE; 
-  public $unique        = FALSE;
-  public $show_label    = TRUE;
-  public $label         = FALSE;
-  public $help_text     = FALSE;
-  public $widget        ="TextInput";
+  public $maxlength     = false; 
+  public $minlength     = false;
+  public $choices       = false; //for select fields this is an array
+  public $text_choices  = false; // Store choices as text in database
+  public $editable      = true; // Only editable options will be displayed in forms
+  public $blank         = true; 
+  public $required      = false; 
+  public $unique        = false;
+  public $show_label    = true;
+  public $label         = false;
+  public $help_text     = false;
+  public $widget        = "TextInput";
   public $data_type     = "string";
+  
   
 
   public function __construct($column, $options = array()) {
@@ -43,25 +44,12 @@ class Field implements \SplObserver {
     if(!$this->col_name) $this->col_name = $this->field;
   }
   
+  
   public function update(\SplSubject $object) {
-    if($object->_status == "before_save")   $this->before_save($object);
-    if($object->_status == "after_save")    $this->after_save($object);
-    
-    if($object->_status == "before_set" && $object->_event_data == $this->field)    $this->before_set($object, $object->_event_data);
-    if($object->_status == "after_set"  && $object->_event_data == $this->field)    $this->after_set($object, $object->_event_data);
-    if($object->_status == "before_get" && $object->_event_data == $this->field)    $this->before_get($object, $object->_event_data);
-    if($object->_status == "after_get"  && $object->_event_data == $this->field)    $this->after_get($object, $object->_event_data);    
+    if($object->_event_data !== $this->field) return;
+    if(is_callable(array($this, $object->_status))) {
+      call_user_func(array($this, $object->_status),$object, $object->_event_data);
+    }   
   }
   
-  public function before_save($object) {}
-  public function after_save($object) {}
-  
-  public function before_set($object, $field) {}
-  public function after_set($object, $field) {}
-  
-  public function before_get($object, $field) {}
-  public function after_get($object, $field) {}
-  
-
-
 }

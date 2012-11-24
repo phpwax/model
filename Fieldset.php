@@ -6,16 +6,17 @@ namespace Wax\Model;
  *
  * @package PHP-WAX
  */
-class Fieldset  {
+class Fieldset implements \SplObserver  {
   
+  public $key            = false;
   public $keys           = [];    
   public $associations   = [];    
   public $columns        = [];
   public $parent_model   = false;
   public $unique_key     = false;
   
-  public function __construct($parent_model) {
-    $this->parent_model = $parent_model;
+  public function __construct($settings = []) {
+    foreach($settings as $k=>$v) $this->$k = $v;
   }
   
   
@@ -25,8 +26,6 @@ class Fieldset  {
     else $class = $type;
     
     if(class_exists($class)) $this->columns[$column] = new $class($column, $options);
-    else die($type);
-    $this->parent_model->attach($this->columns[$column]);
   }
   
   public function columns() {
@@ -66,6 +65,16 @@ class Fieldset  {
     foreach($this->columns() as $name=>$col) {
       if($col->data_type=="string") return $name;
     }
+  }
+  
+  public function update(\SplSubject $object) {
+    foreach($this->columns as $k=>$v) {
+      $v->update($object);
+    }
+  }
+  
+  public function __get($name) {
+    if(is_array($this->columns) && array_key_exists($name, $this->columns)) return $this->columns[$name];
   }
   
   

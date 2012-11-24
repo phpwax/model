@@ -20,10 +20,9 @@ class MockBackend  {
     if(isset($options['schema'])) $this->_schema = $options['schema'];
   }
   
-  public function save($data, $schema) {
-    $this->_data   = $data;
-    $this->_schema = $schema;
-    return new \ArrayObject($data, \ArrayObject::ARRAY_AS_PROPS);
+  public function save($options) {
+    if(isset($options['data'])) return new \ArrayObject($options['data'], \ArrayObject::ARRAY_AS_PROPS);
+    return false;
   }
   
   public function insert($data) {

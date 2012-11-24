@@ -32,8 +32,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $model = new Example;
     $model->set_attributes($this->example_user);
     $keys = $model->_fieldset->accessible_keys();
-    $this->assertEquals(count($keys), 5);
-        
+    $this->assertEquals(count($keys), count($model->columns)-1);
+    $this->assertEquals($model->_name, 'example');
   }
   
   public function test_observe_set() {

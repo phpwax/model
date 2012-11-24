@@ -10,7 +10,8 @@ class Example extends Model {
     'password'  => ['PasswordField', ['blank'=>false,'maxlenth'=>15]],
     'email'     => ['EmailField',    ['blank'=>false]],
     'floatnum'  => ['FloatField'],
-    'datetime'  => ['DateTimeField']
+    'datetime'  => ['DateTimeField'],
+    'mock'      => ['Wax\Model\Tests\MockField']
   ];
 
   

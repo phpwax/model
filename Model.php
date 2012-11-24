@@ -15,7 +15,7 @@ class Model implements \SplSubject{
 
   static public $db_settings  = false;
   static public $db           = false;
-  public $_table               = false;
+  public $_name               = false;
   public $row                 = [];
   public $_unique_key         = "id";
   public $_primary_type       = "GuidField";
@@ -53,25 +53,25 @@ class Model implements \SplSubject{
     $this->set_write_key();
     $this->load_fieldset();
  		$this->setup();
-    
+    $this->notify("before_load");
  		// Handles initialisers passed into the constructor run a method called scope_[scope]() or if an `id` then load that model.
  		if($params) {
  		  $method = "scope_".$params;
 	    if(method_exists($this, $method)) {$this->$method;}
 	    else {
-        $this->notify("before_load");
 	      $res = $this->filter([$this->primary_key=>$params])->first();
    		  $this->row=$res->row;
    		  $this->clear();
-        $this->notify("after_load");
 	    }
 	  }
+    $this->notify("after_load");
+    
  	}
   
   public function set_write_key() {
     $class_name =  get_class($this);
- 		if( $class_name != 'Model' && !$this->_table ) {
-      $this->_table = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $class_name));
+ 		if( $class_name != 'Model' && !$this->_name ) {
+      $this->_name = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', join('', array_slice(explode('\\', $class_name), -1))));
  		}
   }
  
@@ -87,6 +87,10 @@ class Model implements \SplSubject{
   public function backend() {
     if($this->_backend) return $this->_backend;
     if(self::$_default_backend) return self::$_default_backend;
+  }
+  
+  public function fieldset() {
+    if($this->_fieldset) return $this->_fieldset;
   }
   
   public function attach(\SplObserver $observer) {
@@ -108,7 +112,7 @@ class Model implements \SplSubject{
   
   public function load_fieldset() {
     if(!$this->_fieldset) {
-      $this->_fieldset = new Fieldset($this);
+      $this->_fieldset = new Fieldset(['key'=>$this->_name]);
       foreach($this->columns as $col=>$details) {
         $this->define($col, array_shift($details), $details);
       }
@@ -116,16 +120,18 @@ class Model implements \SplSubject{
   }
 
  	public function define($column, $type, $options=array()) {
-    $this->_fieldset->add($column,$type, $options);
+    $this->fieldset()->add($column,$type, $options);
+    $field = $this->fieldset()->$column;
+    if($field instanceof \SplObserver) $this->attach($field);
  	}
   
   
   public function columns() {
-    return $this->_fieldset->columns();
+    return $this->fieldset()->columns();
   }
   
   public function writable_columns() {
-    return array_intersect_key($this->row, array_fill_keys($this->_fieldset->keys(),1 ));
+    return array_intersect_key($this->row, array_fill_keys($this->fieldset()->keys(),1 ));
   }
   
   
@@ -143,7 +149,7 @@ class Model implements \SplSubject{
    */
   public function save() {
     $this->notify("before_save");
-  	$this->_response = $this->backend()->save($this->row, $this->_fieldset);
+  	$this->_response = $this->backend()->save(["data"=>$this->row]);
     $this->notify("after_save");
   	return $this->_response;
   }
@@ -223,7 +229,7 @@ class Model implements \SplSubject{
     *  @return mixed           property value
     */
   public function __get($name) {
-    if(in_array($name, $this->_fieldset->keys)|| in_array($name, $this->_fieldset->associations())) {
+    if(in_array($name, $this->fieldset()->keys)|| in_array($name, $this->fieldset()->associations())) {
       $this->notify("before_get", $name);
       $val = $this->row[$name];
       $this->notify("after_get", $name);
@@ -240,7 +246,7 @@ class Model implements \SplSubject{
    *  @param  mixed   value   property value
    */
   public function __set( $name, $value ) {
-    if(in_array($name, $this->_fieldset->keys())|| in_array($name, $this->_fieldset->associations())) {
+    if(in_array($name, $this->fieldset()->keys())|| in_array($name, $this->fieldset()->associations())) {
       $this->notify("before_set", $name);
       $this->row[$name]=$value;
       $this->notify("after_set", $name);
