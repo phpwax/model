@@ -1,6 +1,12 @@
 <?php
 namespace Wax\Model\Tests;
 
+/**
+ * Mock to implement only the essential interface of a backend
+ * Methods supported: all, first, find, save
+ *
+ */
+
 
 class MockBackend  {
   
@@ -13,6 +19,8 @@ class MockBackend  {
   	"select"         => []
   ];
   
+  public $operations = [];
+  
   public $_data      = false;
   public $_schema    = false;
   
@@ -21,21 +29,22 @@ class MockBackend  {
   }
   
   public function save($options) {
+    $this->operations["save"][]=$options;
     if(isset($options['data'])) return new \ArrayObject($options['data'], \ArrayObject::ARRAY_AS_PROPS);
     return false;
   }
   
-  public function insert($data) {
-    
+  public function all($query) {
+    $this->operations["all"][]=$query;
   }
   
-  public function update($data) {
-
+  public function first($query) {
+    $this->operations["first"][]=$query;
   }
   
   
-  public function fetch($query = false) {
-    
+  public function find($key) {
+    $this->operations["find"][]=$key;
   }
   
   public function __call($method, $params) {

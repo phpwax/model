@@ -7,7 +7,7 @@ namespace Wax\Model;
  *
  * @package PHP-Wax
  **/
-class Field implements \SplObserver {
+class Field extends \ArrayObject implements \SplObserver {
     
   // Database Specific Configuration
   public $field       = false;          // How this column is referred to
