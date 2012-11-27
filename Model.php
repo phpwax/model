@@ -1,6 +1,7 @@
 <?php
 namespace Wax\Model;
-use Wax\Model\Fields;
+
+use Wax\Model\Exceptions\SchemaException;
 
 
 /**
@@ -68,7 +69,14 @@ class Model implements \SplSubject{
     
  	}
   
-  public function set_write_key() {
+  /**
+   * Initialisation. Each model needs an identifier write key, that is passed to the backend.
+   * This method chooses a sensible default which is based off the class name. 
+   *
+   * @param $key optional
+   */
+  public function set_write_key($key=false) {
+    if($key) return $this->_name = $key;
     $class_name =  get_class($this);
  		if( $class_name != 'Model' && !$this->_name ) {
       $this->_name = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', join('', array_slice(explode('\\', $class_name), -1))));
@@ -84,6 +92,9 @@ class Model implements \SplSubject{
     self::$_default_backend = $backend;
   }
   
+  
+  
+  
   public function backend() {
     if($this->_backend) return $this->_backend;
     if(self::$_default_backend) return self::$_default_backend;
@@ -92,6 +103,14 @@ class Model implements \SplSubject{
   public function fieldset() {
     if($this->_fieldset) return $this->_fieldset;
   }
+  
+  
+  /**
+   * These three methods implements the SplSubject interface
+   *
+   * @param SplObserver $observer 
+   * @return void
+   */
   
   public function attach(\SplObserver $observer) {
     $this->_observers->attach($observer);
@@ -142,7 +161,7 @@ class Model implements \SplSubject{
    public function setup() {}
 
 
-	/************** Methods that hit the database ****************/
+	/************** Methods that hit the Backend Engine ****************/
   
   /**
    *  Insert record to table, or update record data
@@ -154,14 +173,10 @@ class Model implements \SplSubject{
   	return $this->_response;
   }
 
-  public function query($query) {
-    return $this->backend()->query($query);
-  }
-
   
 
  	public function all() {
-    $fetch = $this->backend()->exec();
+    $fetch = $this->backend()->all();
     foreach($fetch as $row) {
       $model = clone $this;
       $model->row = $row;
@@ -171,13 +186,13 @@ class Model implements \SplSubject{
  	}
 
  	public function rows() {
- 	  return $this->backend()->select($this);
+ 	  return $this->backend()->all();
  	}
 
  	public function first() {
  	  $this->_query->limit(1);
  	  $model = clone $this;
- 	  $res = $this->backend()->exec();
+ 	  $res = $this->backend()->first();
  	  if($res[0]) $model->row = $res[0];
  	  else $model = false;
  	  return $model;
@@ -213,7 +228,6 @@ class Model implements \SplSubject{
    * @return mixed
    **/
   public function __call($method, $args) {
-    $backend = $this->backend();
     if(is_callable(array($this->backend(), $method))); 
     return call_user_func_array(array($this->backend(), $method), $args);
   }
