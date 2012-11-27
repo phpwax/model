@@ -24,7 +24,7 @@ class PaginatedRecordset extends Recordset {
 	 * @param string $page 
 	 * @param string $per_page 
 	 */	
-	public function __construct(WaxModel $model, $page, $per_page) {
+	public function __construct($model, $page, $per_page) {
 		$this->per_page = $per_page;
 		$this->current_page = $page;
 		//setup model 

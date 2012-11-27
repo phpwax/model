@@ -1,6 +1,5 @@
 <?php
 namespace Wax\Model;
-use Wax\Core\ObjectProxy;
 
 /**
  *  Recordset class
@@ -34,7 +33,7 @@ class Recordset implements \Iterator, \ArrayAccess, \Countable {
   
   public function initialise($rows) {
     foreach($rows as $row) {
-      $this->rowset[] = new ObjectProxy($row);
+      $this->rowset[] = $row;
     }
   }
   
@@ -69,12 +68,11 @@ class Recordset implements \Iterator, \ArrayAccess, \Countable {
   }
   
   public function offsetGet($offset) {
-    if($this->rowset[$offset] instanceof ObjectProxy) return $this->rowset[$offset]->get();
     return $this->rowset[$offset];
   }
   
   public function offsetSet($offset, $value) {
-    $this->rowset[$offset]= new ObjectProxy($value);
+    $this->rowset[$offset]= $value;
   }
   
   public function offsetUnset($offset) {
