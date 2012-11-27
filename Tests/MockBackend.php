@@ -21,8 +21,6 @@ class MockBackend  {
   
   public $operations = [];
   
-  public $_data      = false;
-  public $_schema    = false;
   
   public function __construct($options = []) {
     if(isset($options['schema'])) $this->_schema = $options['schema'];
@@ -34,12 +32,12 @@ class MockBackend  {
     return false;
   }
   
-  public function all($query) {
-    $this->operations["all"][]=$query;
+  public function all($query=[]) {
+    $this->operations["all"][]=$this->query;
   }
   
-  public function first($query) {
-    $this->operations["first"][]=$query;
+  public function first($query=[]) {
+    $this->operations["first"][]=$this->query;
   }
   
   
@@ -48,11 +46,16 @@ class MockBackend  {
   }
   
   public function __call($method, $params) {
-    if(isset($this->_query['method'])) {
-      $this->_query['method']=$params;
+    if(isset($this->query[$method])) {
+      if(is_array($this->query[$method])) $this->query[$method][]=$params;
+      elseif(count($params)==1) $this->query[$method]=$params[0];
+      else $this->query[$method]=$params;
+      return $this;
+    } else {
+      throw new BackendSupportException;
     }
-    return $this;
   }
+  
 
   
 }

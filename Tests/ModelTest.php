@@ -23,7 +23,7 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
   }
   
   public function test_bad_schema_write() {
-    $this->setExpectedException('Wax\Model\SchemaException');
+    $this->setExpectedException('Wax\Model\Exceptions\SchemaException');
     $model = new Example;
     $model->bad_field = "test";     
   }
@@ -73,6 +73,24 @@ class ModelTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals($result->username, "test1");
     $this->assertEquals($result->password, "password");
     $this->assertEquals($result->email, "test1@test.com");
+  }
+  
+  public function test_querying() {
+    $model = new Example;
+    $backend = new MockBackend;
+    $model->set_backend($backend);
+    
+    $model->filter("username","test");
+    $model->filter("username","again","!=");
+    $model->order("testorder");
+    $model->limit(5);
+    $model->offset(2);
+        
+    $this->assertEquals(2, count($backend->query["filter"]));
+    $this->assertEquals("testorder", $backend->query["order"]);
+    $this->assertEquals(5, $backend->query["limit"]);
+    $this->assertEquals(2, $backend->query["offset"]);
+    
   }
   
 
